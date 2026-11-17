@@ -1,0 +1,23 @@
+name: Pegasus price tracker
+
+on:
+  schedule:
+    - cron: "0 */2 * * *"   # har 2 ghante (UTC)
+  workflow_dispatch:         # "Run workflow" button se manually bhi
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      - run: python pegasus_tracker.py
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          ALERT_TO: ${{ secrets.ALERT_TO }}
